@@ -1,4 +1,5 @@
 const Rx = require('rxjs/Rx');
+const moment = require('moment');
 
 const api = require('./api');
 
@@ -52,8 +53,19 @@ const msgList$ = eventBus$.filter(events => events.includes('msg'))
 const msgList$$ = new Rx.BehaviorSubject();
 //msgList$.subscribe(msgList$$);
 
+const tiemLine$ = Rx.Observable.timer(0, 10000)
+	.combineLatest(msgList$)
+	.map(([interval, msgList]) => {
+		const temp = JSON.parse(JSON.stringify(msgList));
+		
+		temp.forEach((msgItem) => {
+			msgItem.display_msg_date = moment(msgItem.msg_date).fromNow();
+		})
+		return temp;
+	})
 
-msgList$.subscribe((data) => {
+
+tiemLine$.subscribe((data) => {
 	console.log(data);
 });
 
@@ -62,7 +74,7 @@ eventBus$.next(['msg', 'friend', 'comment']);
 
 
 setTimeout(() => {
-	eventBus$.next(['msg']);
+	eventBus$.next(['friend']);
 
 }, 3000)
 
