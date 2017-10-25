@@ -16,3 +16,23 @@ const source = Rx.Observable.fromEvent(document, 'click');
 const example = source.switchMap(val => Rx.Observable.interval(3000).mapTo('Hello, I made it!'));
 // (点击)...3s...'Hello I made it!'...(点击)...2s(点击)...
 const subscribe = example.subscribe(val => console.log(val));
+
+
+
+
+const polling_api = () => {
+	return new Promise((resolve, reject) => {
+		setTimeout(() => {
+			resolve({
+				data: 'polling data...'
+			});
+		}, 500)
+	});
+}
+
+const srouce = Rx.Observable
+   .interval(1000)
+   .switchMap(() => Rx.Observable.fromPromise(polling_api()))
+   .map(result => result.data);
+
+const subscribe = srouce.subscribe(val => console.log(val));
